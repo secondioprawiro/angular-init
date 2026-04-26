@@ -1,0 +1,45 @@
+<div class="max-w-4xl mx-auto p-10 bg-white min-h-screen font-sans text-gray-800" *ngIf="cvData">
+    
+    <!-- Header -->
+    <header class="border-b-2 border-gray-100 pb-8 mb-8 flex flex-col md:flex-row justify-between items-end">
+        <div>
+            <h1 class="text-4xl font-bold text-black uppercase tracking-tight">{{ cvData.name }}</h1>
+            <p class="text-xl text-gray-500 mt-1 font-medium">{{ cvData.role }}</p>
+        </div>
+        <div class="mt-4 md:mt-0 text-right text-sm text-gray-600">
+            <p>{{ cvData.email }}</p>
+            <p>Jakarta, Indonesia</p>
+        </div>
+    </header>
+
+    <!-- Experience -->
+    <section>
+        <h2 class="text-xl font-bold uppercase tracking-widest text-gray-400 mb-6 border-b border-gray-100 pb-2">Experience</h2>
+        
+        <div class="space-y-10">
+            @for (exp of cvData.experience; track exp.company) {
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Period -->
+                    <div class="text-sm font-semibold text-gray-400 uppercase pt-1">
+                        {{ exp.period }}
+                    </div>
+                    <!-- Details -->
+                    <div class="md:col-span-3">
+                        <h3 class="text-lg font-bold text-black">{{ exp.position }}</h3>
+                        <p class="text-blue-600 font-medium mb-2">{{ exp.company }}</p>
+                        <p class="text-gray-600 leading-relaxed text-sm">
+                            Membangun dan mengembangkan solusi perangkat lunak menggunakan teknologi modern, 
+                            fokus pada kualitas kode dan pengalaman pengguna yang optimal.
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-20 pt-8 border-t border-gray-100 text-center text-xs text-gray-400">
+        <p>© 2024 {{ cvData.name }}. Simple Resume Design.</p>
+    </footer>
+
+</div>
