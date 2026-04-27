@@ -10,10 +10,6 @@ export const routes: Routes = [
     {
         path: 'cv',
         redirectTo: ''
-    },
-    {
-        path:'**',
-        redirectTo: ''
     }
 ]
 

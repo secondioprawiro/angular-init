@@ -1,0 +1,12 @@
+<section>
+  <img [src]="pokemon.image" [alt]="pokemon.name" />
+  <h2>{{ pokemon.name }}</h2>
+  <div class="types-container">
+    <span *ngFor="let type of pokemon.types" class="type-badge" [ngClass]="type">
+      {{ type }}
+    </span>
+  </div>
+  <button (click)="toogleFavorite()" class="bg-blue-300 text-black-800 p-2 rounded-md">
+    {{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}
+  </button>
+</section>

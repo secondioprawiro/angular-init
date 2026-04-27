@@ -1,0 +1,18 @@
+<div class="page-wrapper">
+    <h1>Pokémon List</h1>
+
+    <p *ngIf="isLoading">Loading...</p>
+
+    <div class="pokemon-grid" *ngIf="!isLoading">
+        <app-card *ngFor="let pokemon of listAllPokemon" [pokemon]="pokemon" [isFavorite]="isFavorite(pokemon)"
+            (addToFavorites)="addToFavorites(pokemon)" (removeFromFavorites)="removeFromFavorites(pokemon)">
+        </app-card>
+    </div>
+
+    <h2 *ngIf="favorites.length > 0" style="margin-top: 40px; text-align: center;">My Favorites</h2>
+    <div class="pokemon-grid" *ngIf="favorites.length > 0">
+        <app-card *ngFor="let pokemon of favorites" [pokemon]="pokemon" [isFavorite]="isFavorite(pokemon)"
+            (addToFavorites)="addToFavorites(pokemon)" (removeFromFavorites)="removeFromFavorites(pokemon)">
+        </app-card>
+    </div>
+</div>

@@ -17,3 +17,17 @@ export interface TodoItem {
     isCompleted: boolean;
 }
 
+export interface Pokemon {
+    name: string;
+    url: string;
+}
+
+export interface PokemonDetail {
+    id: number;
+    name: string;
+    url: string;
+    types: string[];
+    height: number;
+    weight: number;    
+    image?: string;
+}
