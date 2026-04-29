@@ -55,4 +55,11 @@ export class PokemonService {
       this.http.get<PokemonListResponse>(this.apiUrlType)
     );
   }
+
+  async getPokemonById(id: string) {
+    const response = await firstValueFrom(
+      this.http.get<any>(`${this.apiUrl}/${id}`)
+    );
+    return response;
+  }
 }

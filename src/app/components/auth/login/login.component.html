@@ -1,0 +1,50 @@
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h2 class="auth-title">Login</h2>
+    <p class="auth-subtitle">Masuk ke akun Anda</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          placeholder="Masukkan email Anda"
+          [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+        >
+        <div class="error-messages" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">Email harus diisi.</span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">Format email tidak valid.</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          placeholder="Masukkan password Anda"
+          [class.input-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+        >
+        <div class="error-messages" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">Password harus diisi.</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password minimal 6 karakter.</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loginForm.invalid">
+        Login
+      </button>
+
+    </form>
+
+    <p class="auth-footer">
+      Belum punya akun? <a routerLink="/register">Daftar di sini</a>
+    </p>
+  </div>
+</div>

@@ -5,6 +5,7 @@ import {
   PokemonListResponse,
 } from '../../../utils/interface';
 import { PokemonService } from '../../../services/pokemon.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list',
@@ -35,7 +36,7 @@ export class ListComponent implements OnInit {
   itemsPerPage = 20;
   totalPage = 1;
 
-  constructor(private pokemonService: PokemonService) {}
+  constructor(private pokemonService: PokemonService, private router: Router) {}
 
   async ngOnInit() {
     const response = await this.pokemonService.getPokemonList(this.itemsPerPage);
@@ -100,26 +101,46 @@ export class ListComponent implements OnInit {
   }
 
   async loadNext(): Promise<void> {
-    if (!this.nextUrl) return;
+    if (this.currentPage >= this.totalPage) return;
     this.currentPage++;
-    const response = await this.pokemonService.getPokemonListByUrl(this.nextUrl);
-    await this.loadPokemon(response);
+    await this.loadCurrentPageData();
   }
 
   async loadPrevious(): Promise<void> {
-    if (!this.prevUrl) return;
+    if (this.currentPage <= 1) return;
     this.currentPage--;
-    const response = await this.pokemonService.getPokemonListByUrl(this.prevUrl);
-    await this.loadPokemon(response);
+    await this.loadCurrentPageData();
   }
 
   async goToPage(page: number): Promise<void> {
     if (page < 1 || page > this.totalPage || page === this.currentPage) return;
     this.currentPage = page;
-    const offset = (page - 1) * this.itemsPerPage;
-    const url = `${this.pokemonService.apiUrl}?limit=${this.itemsPerPage}&offset=${offset}`;
-    const response = await this.pokemonService.getPokemonListByUrl(url);
-    await this.loadPokemon(response);
+    await this.loadCurrentPageData();
+  }
+
+  // Fungsi Untuk Memuat Data Halaman Saat Ini
+  private async loadCurrentPageData(): Promise<void> {
+    const offset = (this.currentPage - 1) * this.itemsPerPage;
+
+    if (this.selectedElement === '') {
+      // 1. Sedang di "All Types", gunakan pagination API
+      const url = `${this.pokemonService.apiUrl}?limit=${this.itemsPerPage}&offset=${offset}`;
+      const response = await this.pokemonService.getPokemonListByUrl(url);
+      await this.loadPokemon(response);
+    } else {
+      // 2. Sedang di "Type Tertentu", gunakan pagination LOKAL (slice dari cache)
+      const paginatedResults = this.typeResultCache.slice(offset, offset + this.itemsPerPage);
+
+      // Buat tiruan respon API agar pagination tetap berjalan normal
+      const fakeResponse: PokemonListResponse = {
+        count: this.typeResultCache.length,
+        next: (offset + this.itemsPerPage < this.typeResultCache.length) ? 'has_next' : null,
+        previous: (offset > 0) ? 'has_prev' : null,
+        results: paginatedResults
+      };
+
+      await this.loadPokemon(fakeResponse);
+    }
   }
 
   get pages(): number[] {
@@ -150,12 +171,8 @@ export class ListComponent implements OnInit {
       const response = await this.pokemonService.getPokemonByType(typeName);
       this.typeResultCache = response.results; // Simpan semua ke cache
 
-      const slicedResponse = {
-        ...response,
-        results: response.results.slice(0, this.itemsPerPage),
-      };
-
-      await this.loadPokemon(slicedResponse);
+      // Panggil sistem pintar kita untuk memuat halaman pertama dari tipe ini
+      await this.loadCurrentPageData();
     }
   }
 
@@ -163,4 +180,8 @@ export class ListComponent implements OnInit {
     const response = await this.pokemonService.getPokemonTypes();
     this.elements = response.results;
   }
+
+  navigateToDetail(pokemon: PokemonDetail){
+    this.router.navigate(['/pokemon/detail', pokemon.id]);
+}
 }

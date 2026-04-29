@@ -11,9 +11,11 @@ export class CardComponent {
   @Input() pokemon: PokemonDetail = {id: 0, name: '', url: '', types: [], height: 0, weight: 0};
   @Input() isFavorite: boolean = false;
   @Input() isHide: boolean = false;
+  @Input() showDetailButton: boolean = false;
 
   @Output() addToFavorites = new EventEmitter<PokemonDetail>();
   @Output() removeFromFavorites = new EventEmitter<PokemonDetail>();
+  @Output() navigateToDetail = new EventEmitter<PokemonDetail>();
 
   toogleFavorite(){
     if(this.isFavorite){
@@ -21,5 +23,9 @@ export class CardComponent {
     } else {
       this.addToFavorites.emit();
     }
+  }
+
+  onNavigateToDetail(){
+    this.navigateToDetail.emit(this.pokemon);
   }
 }

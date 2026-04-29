@@ -1,12 +1,22 @@
-<section>
-  <img [src]="pokemon.image" [alt]="pokemon.name" />
-  <h2>{{ pokemon.name }}</h2>
-  <div class="types-container">
-    <span *ngFor="let type of pokemon.types" class="type-badge" [ngClass]="type">
+<section class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 p-4 flex flex-col items-center h-full">
+  <img [src]="pokemon.image" [alt]="pokemon.name" class="w-24 h-24 object-contain mb-3 drop-shadow-sm" />
+  <h2 class="text-lg font-bold capitalize text-gray-800 mb-2 text-center">{{ pokemon.name }}</h2>
+  
+  <!-- Tipe Badge -->
+  <div class="flex flex-wrap justify-center gap-1.5 mb-4">
+    <span *ngFor="let type of pokemon.types" class="type-badge px-3 py-1 rounded-full text-xs font-semibold text-white shadow-sm" [ngClass]="type">
       {{ type }}
     </span>
   </div>
-  <button *ngIf="!isHide" (click)="toogleFavorite()" class="bg-blue-300 text-black-800 p-2 rounded-md">
-    {{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}
-  </button>
+  
+  <!-- Spacer (mt-auto) untuk memastikan tombol selalu sejajar di paling bawah -->
+  <div class="mt-auto w-full flex justify-center gap-2">
+    <button *ngIf="!isHide" (click)="toogleFavorite()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors shadow-sm">
+      {{ isFavorite ? 'Remove' : 'Favorite' }}
+    </button>
+    
+    <button *ngIf="showDetailButton" (click)="onNavigateToDetail()" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 px-3 rounded-lg text-sm font-medium transition-colors shadow-sm">
+      Detail
+    </button>
+  </div>
 </section>

@@ -30,6 +30,17 @@ export interface PokemonDetail {
     height: number;
     weight: number;    
     image?: string;
+    cries?:{
+        latest: string;
+        legacy: string;
+    }
+    stats?:Array<
+    {
+        base_stat:number;
+        stat: {
+            name: string;            
+        }
+    }>
 }
 
 export interface PokemonListResponse {
@@ -38,3 +49,4 @@ export interface PokemonListResponse {
     previous: string | null;
     results: PokemonResultResponse[];
 }
+
