@@ -10,9 +10,10 @@ import { PokemonDetail } from '../../../utils/interface';
 export class CardComponent {
   @Input() pokemon: PokemonDetail = {id: 0, name: '', url: '', types: [], height: 0, weight: 0};
   @Input() isFavorite: boolean = false;
+  @Input() isHide: boolean = false;
 
-  @Output() addToFavorites = new EventEmitter<any>();
-  @Output() removeFromFavorites = new EventEmitter<any>();
+  @Output() addToFavorites = new EventEmitter<PokemonDetail>();
+  @Output() removeFromFavorites = new EventEmitter<PokemonDetail>();
 
   toogleFavorite(){
     if(this.isFavorite){

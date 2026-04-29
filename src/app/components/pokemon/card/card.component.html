@@ -6,7 +6,7 @@
       {{ type }}
     </span>
   </div>
-  <button (click)="toogleFavorite()" class="bg-blue-300 text-black-800 p-2 rounded-md">
+  <button *ngIf="!isHide" (click)="toogleFavorite()" class="bg-blue-300 text-black-800 p-2 rounded-md">
     {{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}
   </button>
 </section>

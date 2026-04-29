@@ -17,7 +17,7 @@ export interface TodoItem {
     isCompleted: boolean;
 }
 
-export interface Pokemon {
+export interface PokemonResultResponse {
     name: string;
     url: string;
 }
@@ -30,4 +30,11 @@ export interface PokemonDetail {
     height: number;
     weight: number;    
     image?: string;
+}
+
+export interface PokemonListResponse {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: PokemonResultResponse[];
 }

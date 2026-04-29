@@ -1,7 +1,7 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { PokemonService } from '../../../services/pokemon.service';
-import { Pokemon, PokemonDetail } from '../../../utils/interface';
+import { PokemonResultResponse, PokemonDetail } from '../../../utils/interface';
 
 @Component({
   selector: 'app-pokemon-favorites',
@@ -39,7 +39,7 @@ export class PokemonFavoritesComponent {
       const response = await this.pokemonService.getPokemonList();
 
       this.listAllPokemon = await Promise.all(
-        response.map(async (pokemon: Pokemon) => {
+        response.results.map(async (pokemon: PokemonResultResponse) => {
           const detail = await this.pokemonService.getPokemonDetails(
             pokemon.url,
           );
