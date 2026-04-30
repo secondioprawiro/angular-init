@@ -1,18 +1,66 @@
-<div class="page-wrapper">
-    <h1>Pokémon List</h1>
+<div class="min-h-screen bg-gray-100">
 
-    <p *ngIf="isLoading">Loading...</p>
+  <!-- Header Banner -->
+  <div class="bg-gradient-to-r from-yellow-400 to-orange-500 px-6 py-8 text-white text-center shadow-lg">
+    <h1 class="text-4xl font-extrabold tracking-tight drop-shadow">⭐ Favorites</h1>
+    <p class="text-yellow-100 mt-1 text-sm">
+      {{ favorites.length }} Pokémon tersimpan sebagai favorit
+    </p>
+  </div>
 
-    <div class="pokemon-grid" *ngIf="!isLoading">
-        <app-card *ngFor="let pokemon of listAllPokemon" [pokemon]="pokemon" [isFavorite]="isFavorite(pokemon)"
-            (addToFavorites)="addToFavorites(pokemon)" (removeFromFavorites)="removeFromFavorites(pokemon)">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ===== SEKSI FAVORITES ===== -->
+    <!-- Tampil hanya jika ada favorites -->
+    <div *ngIf="favorites.length > 0" class="mb-10">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-2xl">💛</span>
+        <h2 class="text-xl font-extrabold text-gray-800">Pokémon Favoritmu</h2>
+        <span class="ml-2 bg-yellow-400 text-white text-xs font-bold px-2.5 py-0.5 rounded-full">
+          {{ favorites.length }}
+        </span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <app-card
+          *ngFor="let pokemon of favorites"
+          [pokemon]="pokemon"
+          [isFavorite]="isFavorite(pokemon)"
+          (addToFavorites)="addToFavorites(pokemon)"
+          (removeFromFavorites)="removeFromFavorites(pokemon)">
         </app-card>
+      </div>
     </div>
 
-    <h2 *ngIf="favorites.length > 0" style="margin-top: 40px; text-align: center;">My Favorites</h2>
-    <div class="pokemon-grid" *ngIf="favorites.length > 0">
-        <app-card *ngFor="let pokemon of favorites" [pokemon]="pokemon" [isFavorite]="isFavorite(pokemon)"
-            (addToFavorites)="addToFavorites(pokemon)" (removeFromFavorites)="removeFromFavorites(pokemon)">
-        </app-card>
+    <!-- Empty Favorites State -->
+    <div *ngIf="favorites.length === 0" class="text-center py-8 mb-8 bg-yellow-50 rounded-2xl border-2 border-dashed border-yellow-300">
+      <span class="text-5xl">🌟</span>
+      <p class="text-gray-500 mt-3 font-medium">Belum ada favorit. Tekan ⭐ pada Pokémon di bawah!</p>
     </div>
+
+    <!-- Divider -->
+    <div class="flex items-center gap-3 mb-6">
+      <div class="flex-1 h-px bg-gray-300"></div>
+      <span class="text-sm font-bold text-gray-400 uppercase tracking-wider">Semua Pokémon</span>
+      <div class="flex-1 h-px bg-gray-300"></div>
+    </div>
+
+    <!-- ===== SEKSI SEMUA POKEMON ===== -->
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-yellow-400 border-t-transparent"></div>
+      <span class="ml-4 text-gray-500 font-medium">Memuat Pokémon...</span>
+    </div>
+
+    <div *ngIf="!isLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <app-card
+        *ngFor="let pokemon of listAllPokemon"
+        [pokemon]="pokemon"
+        [isFavorite]="isFavorite(pokemon)"
+        (addToFavorites)="addToFavorites(pokemon)"
+        (removeFromFavorites)="removeFromFavorites(pokemon)">
+      </app-card>
+    </div>
+
+  </div>
 </div>

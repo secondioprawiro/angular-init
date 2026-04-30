@@ -62,4 +62,18 @@ export class PokemonService {
     );
     return response;
   }
+
+  //  data species Pokemon
+  async getPokemonSpecies(id: number | string) {
+    return firstValueFrom(
+      this.http.get<any>(`https://pokeapi.co/api/v2/pokemon-species/${id}`)
+    );
+  }
+
+  // data evolution chain
+  async getEvolutionChain(url: string) {
+    return firstValueFrom(
+      this.http.get<any>(url)
+    );
+  }
 }

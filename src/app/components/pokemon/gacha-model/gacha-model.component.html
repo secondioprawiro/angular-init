@@ -1,0 +1,92 @@
+<!-- Backdrop gelap, hanya render jika isOpen = true -->
+<div
+  *ngIf="isOpen"
+  class="gacha-backdrop fixed inset-0 z-50 flex items-center justify-center"
+  (click)="onBackdropClick($event)">
+
+  <!-- Modal box -->
+  <div class="gacha-modal bg-white rounded-3xl shadow-2xl w-80 overflow-hidden relative">
+
+    <!-- Tombol X -->
+    <button
+      (click)="close()"
+      class="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center bg-white bg-opacity-80 rounded-full text-gray-500 hover:text-gray-800 transition-colors text-lg font-bold">
+      ✕
+    </button>
+
+    <div *ngIf="state === 'rolling'" class="flex flex-col items-center justify-center py-16 px-8 bg-gray-50">
+      <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">Mencari Pokémon...</p>
+
+      <!-- Pokeball struktur HTML:
+           .pokeball-top    = bagian merah atas
+           .pokeball-middle = garis tengah + tombol putih
+           .pokeball-bottom = bagian putih bawah
+      -->
+      <div class="pokeball">
+        <div class="pokeball-top"></div>
+        <div class="pokeball-middle">
+          <div class="pokeball-button"></div>
+        </div>
+        <div class="pokeball-bottom"></div>
+      </div>
+
+      <p class="text-xs text-gray-400 mt-8 animate-pulse">Siap-siap...</p>
+    </div>
+
+    <div *ngIf="state === 'revealed' && result">
+
+      <div
+        class="relative pt-8 pb-4 flex flex-col items-center"
+        [style.background]="getCardGradient()">
+
+        <span class="text-xs font-bold text-white opacity-70 uppercase tracking-widest mb-2">
+          Hasil Gacha!
+        </span>
+
+        <span class="absolute top-3 right-4 text-white opacity-50 font-bold text-sm">
+          #{{ result.id.toString().padStart(3, '0') }}
+        </span>
+
+        <img
+          [src]="result.image"
+          [alt]="result.name"
+          class="pokemon-reveal w-44 h-44 object-contain drop-shadow-2xl">
+      </div>
+
+      <!-- Info + tombol -->
+      <div class="px-6 py-5">
+
+        <h2 class="text-2xl font-extrabold capitalize text-gray-800 text-center mb-3">
+          {{ result.name }}
+        </h2>
+
+        <div class="flex justify-center gap-2 mb-5">
+          <span
+            *ngFor="let type of result.types"
+            class="px-3 py-1 rounded-full text-xs font-bold text-white capitalize"
+            [style.background]="getTypeColor(type)">
+            {{ type }}
+          </span>
+        </div>
+
+        <div class="flex gap-3">
+          <button
+            (click)="rollAgain()"
+            class="flex-1 py-3 rounded-2xl font-bold text-sm bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">
+            🎲 Gacha Lagi
+          </button>
+
+          <!-- goToDetail() tutup modal + navigate ke /pokemon/detail/:id -->
+          <button
+            (click)="goToDetail()"
+            class="flex-1 py-3 rounded-2xl font-bold text-sm text-white transition-all hover:opacity-90"
+            [style.background]="getTypeColor(result.types[0])">
+            Lihat Detail →
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -35,7 +35,7 @@ export class LoginComponent {
           this.loginForm.value.password
         )
         this.isLoading = false;
-        this.router.navigate(['/pokemon']);
+        this.router.navigate(['/pokemon/List']);
       }
     }catch (error){
       this.isLoading = false;

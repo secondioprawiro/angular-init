@@ -1,9 +1,1 @@
-h1 {
-  text-align: center;
-}
-
-.pokemon-grid {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 20px;
-}
+/* Styling ada di Tailwind classes di HTML */

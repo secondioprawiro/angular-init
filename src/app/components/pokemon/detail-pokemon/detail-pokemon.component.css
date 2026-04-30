@@ -1,0 +1,30 @@
+/* Stat bar: animasi grow dari kiri ke kanan */
+.stat-bar-fill {
+  /* transition: properti durasi timing-function */
+  /* Artinya: perubahan 'width' akan dianimasikan selama 1 detik dengan efek ease-out */
+  transition: width 1s ease-out;
+}
+
+/* Efek bounce pada gambar Pokemon saat hover */
+.pokemon-image {
+  transition: transform 0.3s ease;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Animasi mengambang naik-turun */
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Type badge dengan sedikit transparansi di tepi */
+.type-badge {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+/* Hero card dengan subtle pattern */
+.hero-card {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}

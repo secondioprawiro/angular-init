@@ -1,34 +1,187 @@
-<section class="p-6 max-w-2xl mx-auto">
-    
-    <!-- Tombol Kembali menggunakan fungsi goBack -->
-    <button (click)="goBack()" class="mb-4 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors">
-        &larr; Kembali
+<div class="min-h-screen bg-gray-100 p-4">
+
+  <button
+    (click)="goBack()"
+    class="mb-4 flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow text-gray-600 hover:shadow-md transition-all font-medium">
+    ← Kembali
+  </button>
+
+  <div *ngIf="pokemon">
+
+    <div
+      class="hero-card rounded-3xl p-6 mb-4 relative overflow-hidden"
+      [style.background]="'linear-gradient(135deg, ' + getTypeColor(pokemon.types[0]) + 'CC, ' + getTypeColor(pokemon.types[0]) + '66)'">
+
+      <span class="absolute top-4 right-4 text-white font-bold text-xl opacity-60">
+        #{{ pokemon.id.toString().padStart(3, '0') }}
+      </span>
+
+      <h1 class="text-4xl font-extrabold text-white capitalize mb-3 drop-shadow">
+        {{ pokemon.name }}
+      </h1>
+
+      <div class="flex gap-2 mb-4">
+        <span
+          *ngFor="let type of pokemon.types"
+          class="type-badge px-4 py-1 rounded-full text-white text-sm font-bold capitalize"
+          [style.background]="getTypeColor(type)">
+          {{ type }}
+        </span>
+      </div>
+
+      <div class="flex justify-center">
+        <img
+          [src]="pokemon.officialImage || pokemon.image"
+          [alt]="pokemon.name"
+          class="pokemon-image w-52 h-52 object-contain drop-shadow-2xl">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <div class="bg-white rounded-2xl p-4 text-center shadow-sm">
+        <span class="text-2xl">📏</span>
+        <p class="text-lg font-bold text-gray-800 mt-1">{{ getHeightInMeters() }}</p>
+        <p class="text-xs text-gray-400">Height</p>
+      </div>
+      <div class="bg-white rounded-2xl p-4 text-center shadow-sm">
+        <span class="text-2xl">⚖️</span>
+        <p class="text-lg font-bold text-gray-800 mt-1">{{ getWeightInKg() }}</p>
+        <p class="text-xs text-gray-400">Weight</p>
+      </div>
+      <div class="bg-white rounded-2xl p-4 text-center shadow-sm cursor-pointer hover:bg-blue-50 transition-colors" (click)="hearCry()">
+        <span class="text-2xl">🔊</span>
+        <p class="text-sm font-bold text-blue-500 mt-1">Putar</p>
+        <p class="text-xs text-gray-400">Suara</p>
+      </div>
+    </div>
+
+    <!-- Tombol Add/Remove Cart -->
+    <!--
+      toggleCart() dispatch addToCart atau removeFromCart ke NgRx Store
+      isInCart di-update otomatis via store.select().subscribe() di TS
+      [style.background] dan teks tombol berubah berdasarkan isInCart
+    -->
+    <button
+      (click)="toggleCart()"
+      class="w-full py-3 rounded-2xl font-bold text-sm mb-4 transition-all duration-200 shadow-sm"
+      [style.background]="isInCart ? '#FEE2E2' : getTypeColor(pokemon.types[0])"
+      [style.color]="isInCart ? '#EF4444' : '#ffffff'">
+      {{ isInCart ? '🛒 Hapus dari Cart' : '🛒 Tambah ke Cart' }}
     </button>
 
-    <div *ngIf="pokemon" class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold capitalize text-gray-800">{{pokemon.name}}</h1>
-            
-            <!-- Tombol Putar Suara memanggil fungsi hearCry -->
-            <button (click)="hearCry()" class="px-5 py-2 bg-blue-500 text-white font-medium rounded-full hover:bg-blue-600 transition-colors shadow-sm flex items-center gap-2">
-                🔊 Putar Suara
-            </button>
-        </div>
-
-        <div class="bg-gray-50 rounded-lg p-8 flex justify-center mb-6">
-            <img [src]="pokemon.image" alt="{{pokemon.name}}" class="w-48 h-48 object-contain filter drop-shadow-md">
-        </div>
-
-        <div>
-            <h2 class="text-xl font-bold border-b border-gray-200 pb-2 mb-4 text-gray-700">Stats</h2>
-            <ul class="grid grid-cols-2 gap-4">
-                <!-- gunakan pokemon.stats karena sudah didefinisikan di interface sebelumnya -->
-                <li *ngFor="let stat of pokemon.stats" class="bg-gray-50 p-3 rounded-lg flex justify-between">
-                    <span class="capitalize font-medium text-gray-600">{{stat.stat.name}}</span>
-                    <span class="font-bold text-gray-800">{{stat.base_stat}}</span>
-                </li>
-            </ul>
-        </div>
+    <!-- Abilities -->
+    <div *ngIf="pokemon.abilities?.length" class="bg-white rounded-2xl p-4 mb-4 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Abilities</h2>
+      <div class="flex flex-wrap gap-2">
+        <span
+          *ngFor="let ability of pokemon.abilities"
+          class="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700 capitalize">
+          {{ ability }}
+        </span>
+      </div>
     </div>
-</section>
+
+    <div class="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Evolution Chain</h2>
+
+      <!-- Loading state evolution chain -->
+      <div *ngIf="isLoadingEvolution" class="flex justify-center py-6">
+        <div class="animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-gray-600"></div>
+      </div>
+
+      <!-- Hanya 1 tahap = tidak ada evolusi -->
+      <p *ngIf="!isLoadingEvolution && evolutionChain.length <= 1"
+         class="text-center text-gray-400 text-sm py-4">
+        Pokémon ini tidak berevolusi.
+      </p>
+
+      
+      <!--
+        justify-center: pusatkan chain jika Pokemon sedikit (misal 2-3)
+        flex-wrap: wrap jika Pokemon banyak (contoh Eevee 9 eeveelutions)
+      -->
+      <div
+        *ngIf="!isLoadingEvolution && evolutionChain.length > 1"
+        class="flex flex-wrap justify-center items-center gap-3">
+
+        <ng-container *ngFor="let stage of evolutionChain; let last = last">
+
+          <!--
+            Setiap kartu evolusi:
+            - w-24: lebar tetap agar semua kartu sama lebar
+            - border inline style: ganti ring Tailwind (tidak bisa dynamic color via class)
+            - background: tint warna tipe untuk active, abu-abu muda untuk inactive
+          -->
+          <div
+            class="flex flex-col items-center w-24 flex-shrink-0 p-3 rounded-2xl cursor-pointer transition-all duration-200"
+            [style.border]="stage.id === pokemon.id
+              ? '2px solid ' + getTypeColor(pokemon.types[0])
+              : '2px solid #e5e7eb'"
+            [style.background]="stage.id === pokemon.id
+              ? getTypeColor(pokemon.types[0]) + '22'
+              : '#f9fafb'"
+            [class.shadow-md]="stage.id === pokemon.id"
+            (click)="goToEvolution(stage)">
+
+            <img
+              [src]="stage.image"
+              [alt]="stage.name"
+              class="w-16 h-16 object-contain transition-all duration-200"
+              [class.opacity-100]="stage.id === pokemon.id"
+              [class.opacity-50]="stage.id !== pokemon.id">
+
+            <span
+              class="text-xs font-bold capitalize mt-2 text-center leading-tight"
+              [class.text-gray-800]="stage.id === pokemon.id"
+              [class.text-gray-400]="stage.id !== pokemon.id">
+              {{ stage.name }}
+            </span>
+
+            <!--
+              Pakai [class.invisible] bukan *ngIf — badge tetap ada di DOM tapi
+              tidak terlihat, sehingga semua kartu punya tinggi yang sama.
+              Ini kunci agar kartu tidak berbeda-beda tingginya.
+            -->
+            <span
+              class="text-[10px] font-bold px-2 py-0.5 rounded-full text-white mt-1"
+              [class.invisible]="stage.id !== pokemon.id"
+              [style.background]="getTypeColor(pokemon.types[0])">
+              Sekarang
+            </span>
+
+          </div>
+
+          <!-- Panah antar tahap, sembunyikan setelah item terakhir -->
+          <span *ngIf="!last" class="text-gray-300 text-2xl font-light flex-shrink-0 select-none">›</span>
+
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- ===== BASE STATS ===== -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Base Stats</h2>
+
+      <div *ngFor="let stat of pokemon.stats" class="mb-3">
+        <div class="flex justify-between mb-1">
+          <span class="text-sm font-semibold text-gray-500">{{ formatStatName(stat.stat.name) }}</span>
+          <span class="text-sm font-bold text-gray-800">{{ stat.base_stat }}</span>
+        </div>
+        <div class="stat-bar-bg rounded-full h-3 bg-gray-100 overflow-hidden">
+          <div
+            class="stat-bar-fill h-3 rounded-full"
+            [style.width.%]="statsLoaded ? getStatPercent(stat.base_stat) : 0"
+            [style.background-color]="getStatColor(stat.base_stat)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Loading state halaman -->
+  <div *ngIf="!pokemon" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+  </div>
+
+</div>

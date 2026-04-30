@@ -21,6 +21,21 @@
                     <li>
                         <a routerLink="/pokemon/List" class="text-gray-600 hover:text-gray-900 font-medium transition-colors">Pokemon List</a>
                     </li>
+                    <!-- Ikon Cart dengan badge jumlah item -->
+                    <li>
+                        <button (click)="openCart()" class="relative text-gray-600 hover:text-gray-900 transition-colors">
+                            🛒
+                            <!--
+                              Badge merah: hanya tampil jika cartCount$ > 0
+                              cartCount$ | async: async pipe subscribe ke Observable dari Store
+                            -->
+                            <span *ngIf="(cartCount$ | async)! > 0"
+                                  class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                              {{ cartCount$ | async }}
+                            </span>
+                        </button>
+                    </li>
+
                     <li class="pl-4 border-l border-gray-300">
                         <button (click)="onLogout()" class="text-red-500 hover:text-red-700 font-medium transition-colors">
                             Logout

@@ -14,8 +14,18 @@ import { Router } from '@angular/router';
   styleUrl: './list.component.css',
 })
 export class ListComponent implements OnInit {
-  listPokemonDetails: PokemonDetail[] = [];  // data detail halaman saat ini
-  listFilterPokemon: PokemonDetail[] = [];   // data yang ditampilkan (setelah search)
+  listPokemonDetails: PokemonDetail[] = [];
+  listFilterPokemon: PokemonDetail[] = [];
+
+  // Warna per tipe — dipakai untuk styling tombol filter
+  readonly typeColors: { [key: string]: string } = {
+    fire: '#FF6B35', water: '#4FC3F7', grass: '#66BB6A',
+    electric: '#FFCA28', psychic: '#EC407A', ice: '#80DEEA',
+    dragon: '#7B1FA2', dark: '#4E342E', fairy: '#F48FB1',
+    normal: '#9E9E9E', fighting: '#D32F2F', flying: '#7986CB',
+    poison: '#AB47BC', ground: '#FFCC02', rock: '#8D6E63',
+    bug: '#8BC34A', ghost: '#5C6BC0', steel: '#78909C',
+  };
 
   masterPokemonList: PokemonResultResponse[] = []; // semua nama pokemon
   typeResultCache: PokemonResultResponse[] = [];   // semua pokemon dari tipe yang dipilih
@@ -29,6 +39,10 @@ export class ListComponent implements OnInit {
   
   nextUrl: string | null = null;
   prevUrl: string | null = null;
+  private savedNextUrl: string | null = null;
+  private savedPrevUrl: string | null = null;
+  private savedTotalCount = 0;
+  private savedCurrentPage = 1;
 
   // Info halaman
   currentPage = 1;
@@ -67,6 +81,10 @@ export class ListComponent implements OnInit {
       this.nextUrl = response.next;
       this.prevUrl = response.previous;
       this.totalCount = response.count;
+      this.savedNextUrl = response.next;
+      this.savedPrevUrl = response.previous;
+      this.savedTotalCount = response.count;
+      this.savedCurrentPage = this.currentPage;
       this.updatePagination();
     } catch (error) {
       console.log('Error', error);
@@ -78,17 +96,28 @@ export class ListComponent implements OnInit {
   async filterPokemon(): Promise<void> {
     if (this.search.trim() === '') {
       this.listFilterPokemon = this.listPokemonDetails;
+      this.nextUrl = this.savedNextUrl;
+      this.prevUrl = this.savedPrevUrl;
+      this.totalCount = this.savedTotalCount;
+      this.currentPage = this.savedCurrentPage;
+      this.updatePagination();
       return;
     }
 
     const source = this.selectedElement ? this.typeResultCache : this.masterPokemonList;
-    const matched = source
-      .filter(p => p.name.toLowerCase().includes(this.search.toLowerCase()))
-      .slice(0, this.itemsPerPage);
+    const matched = source.filter(p => p.name.toLowerCase().includes(this.search.toLowerCase()));
+
+    this.totalCount = matched.length;
+    this.totalPage = Math.ceil(matched.length / this.itemsPerPage);
+    this.currentPage = 1;
+    this.nextUrl = matched.length > this.itemsPerPage ? 'search' : null;
+    this.prevUrl = null;
+
+    const paged = matched.slice(0, this.itemsPerPage);
 
     try {
       this.isSearching = true;
-      this.listFilterPokemon = await Promise.all(matched.map(p => this.mapToDetail(p)));
+      this.listFilterPokemon = await Promise.all(paged.map(p => this.mapToDetail(p)));
     } catch (error) {
       console.log('Error', error);
     } finally {
@@ -103,19 +132,50 @@ export class ListComponent implements OnInit {
   async loadNext(): Promise<void> {
     if (this.currentPage >= this.totalPage) return;
     this.currentPage++;
-    await this.loadCurrentPageData();
+    if (this.search.trim()) {
+      await this.loadSearchPage();
+    } else {
+      await this.loadCurrentPageData();
+    }
   }
 
   async loadPrevious(): Promise<void> {
     if (this.currentPage <= 1) return;
     this.currentPage--;
-    await this.loadCurrentPageData();
+    if (this.search.trim()) {
+      await this.loadSearchPage();
+    } else {
+      await this.loadCurrentPageData();
+    }
   }
 
   async goToPage(page: number): Promise<void> {
     if (page < 1 || page > this.totalPage || page === this.currentPage) return;
     this.currentPage = page;
-    await this.loadCurrentPageData();
+    if (this.search.trim()) {
+      await this.loadSearchPage();
+    } else {
+      await this.loadCurrentPageData();
+    }
+  }
+
+  private async loadSearchPage(): Promise<void> {
+    const source = this.selectedElement ? this.typeResultCache : this.masterPokemonList;
+    const matched = source.filter(p => p.name.toLowerCase().includes(this.search.toLowerCase()));
+    const offset = (this.currentPage - 1) * this.itemsPerPage;
+    const paged = matched.slice(offset, offset + this.itemsPerPage);
+
+    this.nextUrl = offset + this.itemsPerPage < matched.length ? 'search' : null;
+    this.prevUrl = offset > 0 ? 'search' : null;
+
+    try {
+      this.isSearching = true;
+      this.listFilterPokemon = await Promise.all(paged.map(p => this.mapToDetail(p)));
+    } catch (error) {
+      console.log('Error', error);
+    } finally {
+      this.isSearching = false;
+    }
   }
 
   // Fungsi Untuk Memuat Data Halaman Saat Ini
@@ -123,12 +183,12 @@ export class ListComponent implements OnInit {
     const offset = (this.currentPage - 1) * this.itemsPerPage;
 
     if (this.selectedElement === '') {
-      // 1. Sedang di "All Types", gunakan pagination API
+      // Sedang di "All Types", gunakan pagination API
       const url = `${this.pokemonService.apiUrl}?limit=${this.itemsPerPage}&offset=${offset}`;
       const response = await this.pokemonService.getPokemonListByUrl(url);
       await this.loadPokemon(response);
     } else {
-      // 2. Sedang di "Type Tertentu", gunakan pagination LOKAL (slice dari cache)
+      // Sedang di "Type Tertentu", gunakan pagination LOKAL (slice dari cache)
       const paginatedResults = this.typeResultCache.slice(offset, offset + this.itemsPerPage);
 
       // Buat tiruan respon API agar pagination tetap berjalan normal
@@ -181,7 +241,11 @@ export class ListComponent implements OnInit {
     this.elements = response.results;
   }
 
-  navigateToDetail(pokemon: PokemonDetail){
+  getTypeColor(type: string): string {
+    return this.typeColors[type] || '#9E9E9E';
+  }
+
+  navigateToDetail(pokemon: PokemonDetail) {
     this.router.navigate(['/pokemon/detail', pokemon.id]);
-}
+  }
 }

@@ -1,0 +1,82 @@
+<!--
+  isOpen$ adalah Observable<boolean> dari NgRx Store
+  | async = Angular async pipe: subscribe otomatis, unsubscribe otomatis saat component destroy
+  Jika isOpen$ emit true → panel slide in dari kanan
+-->
+<ng-container *ngIf="isOpen$ | async">
+
+  <!-- Backdrop -->
+  <div class="cart-backdrop fixed inset-0 z-40 bg-black bg-opacity-40"
+       (click)="close()"></div>
+
+  <!-- Panel slide-in dari kanan -->
+  <div class="cart-panel fixed top-0 right-0 h-full w-96 max-w-full z-50 bg-white shadow-2xl flex flex-col">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🛒</span>
+        <h2 class="text-lg font-extrabold text-gray-800">Pokemon Cart</h2>
+        <!-- count$ | async: tampilkan jumlah item dari Store -->
+        <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+          {{ count$ | async }}
+        </span>
+      </div>
+      <button (click)="close()" class="text-gray-400 hover:text-gray-700 text-xl font-bold">✕</button>
+    </div>
+
+    <!-- List items — items$ | async untuk loop data dari Store -->
+    <div class="flex-1 overflow-y-auto px-4 py-3">
+
+      <!-- Empty state -->
+      <div *ngIf="(count$ | async) === 0" class="flex flex-col items-center justify-center h-full text-center">
+        <span class="text-6xl mb-4">🛒</span>
+        <p class="text-gray-400 font-medium">Cart masih kosong.</p>
+        <p class="text-gray-300 text-sm mt-1">Tambah Pokemon dari halaman detail!</p>
+      </div>
+
+      <!--
+        *ngFor dari Observable via async pipe
+        Setiap kali store update, list ini otomatis re-render
+      -->
+      <div *ngFor="let pokemon of items$ | async"
+           class="flex items-center gap-3 p-3 rounded-2xl mb-2 hover:bg-gray-50 transition-colors group">
+
+        <!-- Gambar kecil dengan background warna tipe -->
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+             [style.background]="getTypeColor(pokemon.types[0]) + '33'">
+          <img [src]="pokemon.image" [alt]="pokemon.name" class="w-12 h-12 object-contain">
+        </div>
+
+        <!-- Info -->
+        <div class="flex-1 min-w-0 cursor-pointer" (click)="goToDetail(pokemon)">
+          <p class="font-bold capitalize text-gray-800 text-sm">{{ pokemon.name }}</p>
+          <p class="text-xs text-gray-400">#{{ pokemon.id.toString().padStart(3,'0') }}</p>
+          <div class="flex gap-1 mt-1">
+            <span *ngFor="let type of pokemon.types"
+                  class="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+                  [style.background]="getTypeColor(type)">
+              {{ type }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Tombol hapus -->
+        <button (click)="remove(pokemon.id)"
+                class="opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-600 font-bold text-lg flex-shrink-0">
+          ✕
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Footer: tombol clear -->
+    <div *ngIf="(count$ | async)! > 0" class="px-4 py-4 border-t border-gray-100">
+      <button (click)="clear()"
+              class="w-full py-3 rounded-2xl font-bold text-sm bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+        🗑️ Kosongkan Cart
+      </button>
+    </div>
+
+  </div>
+</ng-container>
